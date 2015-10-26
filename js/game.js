@@ -25,7 +25,8 @@ var Game = new (function() {
       onHomeScreen = true,
       undoStack = [],
       undone = false,
-      gameEnded = false;
+      gameEnded = false,
+      competition = null;
 
   function init() {
     $('#scorenr').html(getScore());
@@ -57,6 +58,8 @@ var Game = new (function() {
     
     var colors = ['#a7327c', '#c24b31', '#c0cd31']
     Utils.setColorScheme(colors[1]);
+
+    competition = new Competition();
   }
 
   function start() {
@@ -225,6 +228,7 @@ var Game = new (function() {
       throw 'no proper puzzle object received'
     
     //console.log(puzzle);
+    competition.startTimer();
     clearTimeouts();
     if (window.STOPPED) return;
     startedTutorial = false;
@@ -266,6 +270,9 @@ var Game = new (function() {
     // first of all, save the score, so if you quit while the animation runs, the score is kept
     var oldScore = getScore(),
         newScore = setScore(grid.width * grid.height);
+
+    // TODO: Stop timer and record everything
+    competition.stopTimer();
 
     grid.unmark();
     grid.hint.hide();
@@ -420,10 +427,7 @@ var Game = new (function() {
   function doAction(action, value) {
     switch (action) {
       case 'close-titleScreen':
-        if (!tutorialPlayed())
-          startTutorial();
-        else
-          showMenu();
+        showMenu();
         break;
       case 'show-menu':
         clearTimeout(checkTOH);
