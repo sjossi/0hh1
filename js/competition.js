@@ -33,33 +33,23 @@ function Competition() {
   function loadTimes() {
     times = JSON.parse(localStorage["competition-times"]);
     console.log("Times loaded");
-    //this.printTimes();
+    this.printTimes();
   }
 
   function printTimes() {
     console.log(times);
     times.forEach(function(e, i) {
-      console.log("Time " + i + ": " + e.getTime());
+      console.log("Time " + i + ": " + e.time + "ms on a " + e.puzzleSize + " board");
     });
   }
 }
 
 function PuzzleTimer(size, stoppedTime) {
   var time,
-      puzzleSize;
+      puzzleSize,
+      datetime;
 
   this.puzzleSize = size;
   this.time = stoppedTime;
-}
-
-PuzzleTimer.prototype = {
-
-  getTime: function() {
-    return this.time;
-  },
-
-  printTime: function() {
-   console.log("Seconds: " + this.time.getSeconds()); 
-  }
-
+  this.datetime = Date.now();
 }
