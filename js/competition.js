@@ -3,8 +3,6 @@ function Competition() {
   var startTime = null;
   var endTime = null;
 
-  var times = [];
-
   this.startTimer = startTimer;
   this.stopTimer = stopTimer;
   this.addTime = addTime;
@@ -26,21 +24,83 @@ function Competition() {
   }
 
   function addTime(time, size) {
-    times.push(new PuzzleTimer(size, time));
-    localStorage["competition-times"] = JSON.stringify(times);
+    if (Game.debug)
+      console.log(size);
+
+    switch (size) {
+      case 4:
+        $("#promod #four ol").append("<li>" + time + "ms</li>");
+        times.four.push(new PuzzleTimer(size, time));
+        break;
+      case 6:
+        $("#promod #six ol").append("<li>" + time + "ms</li>");
+        times.six.push(new PuzzleTimer(size, time));
+        break;
+      case 8:
+        $("#promod #eight ol").append("<li>" + time + "ms</li>");
+        times.eight.push(new PuzzleTimer(size, time));
+        break;
+      case 10:
+        $("#promod #ten ol").append("<li>" + time + "ms</li>");
+        times.ten.push(new PuzzleTimer(size, time));
+        break;
+    }
+
+    localStorage["promod"] = JSON.stringify(times);
   }
 
   function loadTimes() {
-    times = JSON.parse(localStorage["competition-times"]);
-    console.log("Times loaded");
+    if (localStorage["promod"]) {
+      times = JSON.parse(localStorage["promod"]);
+      if (Game.debug)
+        console.log("Times loaded from localstorage");
+    } else {
+      times = { four:  [],
+                six:   [],
+                eight: [],
+                ten:   []};
+      if (Game.debug)
+        console.log("no existing times");
+    }
+
     this.printTimes();
   }
 
   function printTimes() {
-    console.log(times);
-    times.forEach(function(e, i) {
-      console.log("Time " + i + ": " + e.time + "ms on a " + e.puzzleSize + " board");
+    times.four.forEach(function(e, i) {
+      $("#promod #four ol").append("<li>" + e.time + "ms</li>");
     });
+
+    times.six.forEach(function(e, i) {
+      $("#promod #six ol").append("<li>" + e.time + "ms</li>");
+    });
+
+    times.eight.forEach(function(e, i) {
+      $("#promod #eight ol").append("<li>" + e.time + "ms</li>");
+    });
+
+    times.ten.forEach(function(e, i) {
+      $("#promod #ten ol").append("<li>" + e.time + "ms</li>");
+    });
+  }
+
+  function msToTime(s) {
+    function addZero(n) {
+      return (n<10 ? '0':'') + n;
+    }
+
+    var ms = s % 1000;
+    s = (s - ms) / 1000;
+    var secs = s % 60;
+    s = (s - secs) / 60;
+    var mins = s % 60;
+    console.log(s);
+
+    var string = mins==0 ? addZero(mins) : '';
+    string += secs==0 ? addZero(min) : '';
+    string += ms==0 ? addZero(ms) : '';
+    return string;
+
   }
 }
 
@@ -52,4 +112,8 @@ function PuzzleTimer(size, stoppedTime) {
   this.puzzleSize = size;
   this.time = stoppedTime;
   this.datetime = Date.now();
+}
+
+function Times() {
+
 }

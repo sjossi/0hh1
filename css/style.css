@@ -27,7 +27,7 @@ body {
   margin: auto;
   position: absolute;
   top:0;bottom:0; /* vertical center */
-  left:0;right:0; /* horizontal center */
+  left:200px;right:0; /* horizontal center */
   overflow: hidden;
 }
 .vertical {
@@ -516,5 +516,18 @@ html body .show01 .tile .inner:after {
 }
 
 #promod {
-  height: 200px;
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  bottom: 0px;
+  width: 200px;
+  height: 100%;
+  overflow: auto;
+
+  background: white;
+  
+  padding: 5px;
+
+  font-family: "monospace";
+  font-size: 0.8em;
 }
