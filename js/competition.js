@@ -47,6 +47,25 @@ function Competition() {
     }
 
     localStorage["promod"] = JSON.stringify(times);
+    updateTimes();
+  }
+
+  function updateTimes() {
+    if(averageOf(times.four.slice(-5)) > times.fourAo5) {
+      times.fourAo5 = averageOf(times.four.slice(-5)); 
+    }
+    $("#promod #four .avg5").text(times.fourAo5 + "ms");
+
+    $("#promod #six .avg5").text(averageOf(times.four.slice(-5)) + "ms");
+    $("#promod #eight .avg5").text(averageOf(times.four.slice(-5)) + "ms");
+    $("#promod #ten .avg5").text(averageOf(times.four.slice(-5)) + "ms");
+
+    $("#promod #four .avg12").text(averageOf(times.four.slice(-12)) + "ms");
+    $("#promod #six .avg12").text(averageOf(times.six.slice(-12)) + "ms");
+    $("#promod #eight .avg12").text(averageOf(times.eight.slice(-12)) + "ms");
+    $("#promod #ten .avg12").text(averageOf(times.ten.slice(-12)) + "ms");
+
+    localStorage["promod"] = JSON.stringify(times);
   }
 
   function loadTimes() {
@@ -54,11 +73,21 @@ function Competition() {
       times = JSON.parse(localStorage["promod"]);
       if (Game.debug)
         console.log("Times loaded from localstorage");
+      updateTimes();
     } else {
-      times = { four:  [],
-                six:   [],
-                eight: [],
-                ten:   []};
+      times = { four:     [],
+                fourAo5:  0,
+                fourAo12: 0,
+                six:      [],
+                sixAo5:   0,
+                sixAo12:  0,
+                eight:    [],
+                eightAo5: 0,
+                eightAo12: 0,
+                ten:      [],
+                tenAo5:   0,
+                tenAo12:  0
+      };
       if (Game.debug)
         console.log("no existing times");
     }
@@ -102,6 +131,26 @@ function Competition() {
     return string;
 
   }
+
+  function averageOf(stack) {
+    var sum = 0;
+    var avg = 0;
+
+    // make cubing-style averages by removing fastest
+    // and slowest time
+    stack.sort(function(a,b){return a-b;});
+    stack.slice(1, -1);
+
+
+    stack.forEach(function(e){
+      sum += e.time;
+    });
+
+    avg = sum / stack.length;
+
+    return avg;
+  }
+
 }
 
 function PuzzleTimer(size, stoppedTime) {
@@ -112,8 +161,4 @@ function PuzzleTimer(size, stoppedTime) {
   this.puzzleSize = size;
   this.time = stoppedTime;
   this.datetime = Date.now();
-}
-
-function Times() {
-
 }
