@@ -60,6 +60,7 @@ var Game = new (function() {
     Utils.setColorScheme(colors[1]);
 
     competition = new Competition();
+    competition.loadTimes();
   }
 
   function start() {
@@ -228,7 +229,6 @@ var Game = new (function() {
       throw 'no proper puzzle object received'
     
     //console.log(puzzle);
-    competition.startTimer();
     clearTimeouts();
     if (window.STOPPED) return;
     startedTutorial = false;
@@ -263,16 +263,17 @@ var Game = new (function() {
     undone = false;
     gameEnded = false;
 
+    competition.startTimer(currentPuzzle.size);
+
     setTimeout(showGame, 0);
   }
 
   function endGame() {
+    competition.stopTimer(currentPuzzle.size);
     // first of all, save the score, so if you quit while the animation runs, the score is kept
     var oldScore = getScore(),
         newScore = setScore(grid.width * grid.height);
 
-    // TODO: Stop timer and record everything
-    competition.stopTimer();
 
     grid.unmark();
     grid.hint.hide();
