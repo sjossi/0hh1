@@ -24,25 +24,22 @@ function Competition() {
   }
 
   function addTime(time, size) {
-    if (Game.debug)
-      console.log(size);
-
     switch (size) {
       case 4:
         $("#promod #four ol").append("<li>" + time + "ms</li>");
-        times.four.push(new PuzzleTimer(size, time));
+        times.four.times.push(new PuzzleTimer(size, time));
         break;
       case 6:
         $("#promod #six ol").append("<li>" + time + "ms</li>");
-        times.six.push(new PuzzleTimer(size, time));
+        times.six.times.push(new PuzzleTimer(size, time));
         break;
       case 8:
         $("#promod #eight ol").append("<li>" + time + "ms</li>");
-        times.eight.push(new PuzzleTimer(size, time));
+        times.eight.times.push(new PuzzleTimer(size, time));
         break;
       case 10:
         $("#promod #ten ol").append("<li>" + time + "ms</li>");
-        times.ten.push(new PuzzleTimer(size, time));
+        times.ten.times.push(new PuzzleTimer(size, time));
         break;
     }
 
@@ -51,19 +48,45 @@ function Competition() {
   }
 
   function updateTimes() {
-    if(averageOf(times.four.slice(-5)) > times.fourAo5) {
-      times.fourAo5 = averageOf(times.four.slice(-5)); 
-    }
-    $("#promod #four .avg5").text(times.fourAo5 + "ms");
+    modes = [ times.four, 
+              times.six, 
+              times.eight, 
+              times.ten ]
 
-    $("#promod #six .avg5").text(averageOf(times.four.slice(-5)) + "ms");
-    $("#promod #eight .avg5").text(averageOf(times.four.slice(-5)) + "ms");
-    $("#promod #ten .avg5").text(averageOf(times.four.slice(-5)) + "ms");
+    modes.forEach(function(e){
+      if(e.times.length >= 5) {
+        e.currentAo5 = averageOf(e.times.slice(-5));
+        if(e.bestAo5 == -1 || e.currentAo5 < e.bestAo5)
+          e.bestAo5 = e.currentAo5;
+        if(e.times.length >= 12) {
+          e.currentAo12 = averageOf(e.times.slice(-12));
+          if(e.bestAo12 == -1 || e.currentAo12 < e.bestAo12) 
+            e.bestAo12 = e.currentAo12;
+        }
+      }
+    });
 
-    $("#promod #four .avg12").text(averageOf(times.four.slice(-12)) + "ms");
-    $("#promod #six .avg12").text(averageOf(times.six.slice(-12)) + "ms");
-    $("#promod #eight .avg12").text(averageOf(times.eight.slice(-12)) + "ms");
-    $("#promod #ten .avg12").text(averageOf(times.ten.slice(-12)) + "ms");
+    // current
+    $("#promod #four .currentAvg5").text(times.four.currentAo5 + "ms");
+    $("#promod #six .currentAvg5").text(times.six.currentAo5 + "ms");
+    $("#promod #eight .currentAvg5").text(times.eight.currentAo5 + "ms");
+    $("#promod #ten .currentAvg5").text(times.ten.currentAo5 + "ms");
+
+    $("#promod #four .currentAvg12").text(times.four.currentAo12 + "ms");
+    $("#promod #six .currentAvg12").text(times.six.currentAo12 + "ms");
+    $("#promod #eight .currentAvg12").text(times.eight.currentAo12 + "ms");
+    $("#promod #ten .currentAvg12").text(times.ten.currentAo12 + "ms");
+
+    // best
+    $("#promod #four .bestAvg5").text(times.four.bestAo5 + "ms");
+    $("#promod #six .bestAvg5").text(times.six.bestAo5 + "ms");
+    $("#promod #eight .bestAvg5").text(times.eight.bestAo5 + "ms");
+    $("#promod #ten .bestAvg5").text(times.ten.bestAo5 + "ms");
+
+    $("#promod #four .bestAvg12").text(times.four.bestAo12 + "ms");
+    $("#promod #six .bestAvg12").text(times.six.bestAo12 + "ms");
+    $("#promod #eight .bestAvg12").text(times.eight.bestAo12 + "ms");
+    $("#promod #ten .bestAvg12").text(times.ten.bestAo12 + "ms");
 
     localStorage["promod"] = JSON.stringify(times);
   }
@@ -73,42 +96,35 @@ function Competition() {
       times = JSON.parse(localStorage["promod"]);
       if (Game.debug)
         console.log("Times loaded from localstorage");
+
       updateTimes();
+      this.printTimes();
     } else {
-      times = { four:     [],
-                fourAo5:  0,
-                fourAo12: 0,
-                six:      [],
-                sixAo5:   0,
-                sixAo12:  0,
-                eight:    [],
-                eightAo5: 0,
-                eightAo12: 0,
-                ten:      [],
-                tenAo5:   0,
-                tenAo12:  0
+      times = { four:     new TimeList(),
+                six:      new TimeList(),
+                eight:    new TimeList(),
+                ten:      new TimeList()
       };
       if (Game.debug)
         console.log("no existing times");
     }
 
-    this.printTimes();
   }
 
   function printTimes() {
-    times.four.forEach(function(e, i) {
+    times.four.times.forEach(function(e, i) {
       $("#promod #four ol").append("<li>" + e.time + "ms</li>");
     });
 
-    times.six.forEach(function(e, i) {
+    times.six.times.forEach(function(e, i) {
       $("#promod #six ol").append("<li>" + e.time + "ms</li>");
     });
 
-    times.eight.forEach(function(e, i) {
+    times.eight.times.forEach(function(e, i) {
       $("#promod #eight ol").append("<li>" + e.time + "ms</li>");
     });
 
-    times.ten.forEach(function(e, i) {
+    times.ten.times.forEach(function(e, i) {
       $("#promod #ten ol").append("<li>" + e.time + "ms</li>");
     });
   }
@@ -161,4 +177,13 @@ function PuzzleTimer(size, stoppedTime) {
   this.puzzleSize = size;
   this.time = stoppedTime;
   this.datetime = Date.now();
+}
+
+function TimeList(size) {
+  var currentAo5;
+  var currentAo12;
+  var bestAo5 = -1;
+  var bestAo12 = -1;
+
+  this.times = [];
 }
